@@ -157,7 +157,7 @@ public class MainWindowTest {
 
     @Test
     // chemins inds, est-ce que currencies peut etre vide? si non, utilise chemin 2
-    public void testPath136() {
+    public void testPath1346() {
         ArrayList<Currency> emptyCurrencies = new ArrayList<Currency>();
         String expectedOutcome = "Should return an error if currencies Array is empty";
         assertThrows(exceptionClass,
@@ -165,14 +165,10 @@ public class MainWindowTest {
                 expectedOutcome);
     }
 
-    @Test
-    public void testPath1367910() {
-        String sameFirstCurrency = "US Dollar";
-        assertTrue(MainWindow.convert(sameFirstCurrency, sameFirstCurrency, currencies, amount) instanceof Double);
-    }
+
 
     @Test
-    public void testPath1236781011() {
+    public void testPath123478109() {
         String falseCurrency = "Doge";
         String expectedOutcome = "Should return an error if currency 1 is invalid";
         assertThrows(exceptionClass,
