@@ -1,63 +1,63 @@
 package test;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
-
-
+import java.util.ArrayList;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import currencyConverter.Currency;
-import currencyConverter.MainWindow;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-/**
- * Ny comprehension is:
- * - If it is not accepted it should throw an exception. We dont know the
- * exception so we just want an exception
- * -
- * 
- * What make no sense:
- * - It make no sense to have convertion use the full Name and not the Short
- * name,
- */
+import currencyConverter.MainWindow;
+import currencyConverter.Currency;
+
 public class MainWindowTest {
 
-    @Test
-    void shouldNotAcceptValueLessThan0() {
-        String expectedOutcome = "Should return an error if value to convert is less than 0";
-        Class<Exception> exceptionClass = Exception.class;
-        assertThrows(expectedOutcome, exceptionClass,
-                () -> MainWindow.convert("US Dollar", "Euro", Currency.init(), -1.00));
+    // Black box testing for currencyConverter.MainWindow.convert(String, String,
+    // Currency, Double)
+
+    private String currency1;
+    private String currency2;
+    private Double amount;
+    private static ArrayList<Currency> currencies;
+    private Class<Exception> exceptionClass = Exception.class;
+
+    @BeforeEach
+    public void init() {
+        currency1 = "US Dollar";
+        currency2 = "British Pound";
+        amount = 1.0d;
+    }
+
+    @BeforeAll
+    public static void setup() {
+        currencies = Currency.init();
     }
 
     @Test
-    void shouldNotAcceptValueMoreThan10000() {
-        String expectedOutcome = "Should return an error if value to convert is more than 1000.00";
-        Class<Exception> exceptionClass = Exception.class;
-        assertThrows(expectedOutcome,
-                exceptionClass,
-                () -> MainWindow.convert("US Dollar", "Euro", Currency.init(), 10001.00));
+    public void shouldNotConvertInvalidCurrency1() {
+        String falseCurrenty = "Dogecoins";
+        String expectedOutcome = "Should return an error if currency 1 is invalid";
+
+        assertThrows(exceptionClass,
+                () -> MainWindow.convert(falseCurrenty, currency2, currencies, amount),
+                expectedOutcome);
     }
 
     @Test
-    void shouldAcceptAValidValue() {
-        String expectedOutcome = "Should accept a 10 as a value";
-        double response = MainWindow.convert("US Dollar", "Euro", Currency.init(), 999.00);
-        assertTrue(expectedOutcome, response != 0);
+    public void shouldNotConvertInvalidCurrency2() {
+        String falseCurrenty = "Dogecoins";
+        String expectedOutcome = "Should return an error if currency 2 is invalid";
+        assertThrows(exceptionClass,
+                () -> MainWindow.convert(currency1, falseCurrenty, currencies,
+                        amount),
+                expectedOutcome);
     }
 
     @Test
-    void shouldAccept0() {
-        String expectedOutcome = "Should accept a 0 as a value";
-        double response = MainWindow.convert("US Dollar", "Euro", Currency.init(), 0.00);
-        assertTrue(expectedOutcome, response == 0);
-    }
-
-    @Test
-    void shouldAcceptn10000() {
-        String expectedOutcome = "Should accept 10000 as a value";
-        double response = MainWindow.convert("US Dollar", "Euro", Currency.init(), 10000.00);
-        assertTrue(expectedOutcome, response != 0);
+    public void shouldConvertValidCurrency() {
+        assertTrue(MainWindow.convert(currency1, currency2, currencies, amount) instanceof Double);
     }
 
     @Test
@@ -84,30 +84,143 @@ public class MainWindowTest {
     }
 
     @Test
-    void shouldOnlySupportSpecificationCurrency() {
-        // YEN should not be accepted
-        double defaultCurrencyValue = 10.00;
-
-        String expectedOutcome = "Should return an error if converting YEN";
-        Class<Exception> exceptionClass = Exception.class;
-        assertThrows(expectedOutcome, exceptionClass,
-                () -> MainWindow.convert("Japanese Yen", "Japanese Yen", Currency.init(), defaultCurrencyValue));
+    public void shouldNotConvertAmountLessThan0() {
+        Double inferiorAmount = -1.0d;
+        String expectedOutcome = "Should return an error if amount is inferior to 0";
+        assertThrows(exceptionClass,
+                () -> MainWindow.convert(currency1, currency2, currencies,
+                        inferiorAmount),
+                expectedOutcome);
     }
 
     @Test
-    void shouldSupportDifferentCurrencyConversion() {
-        double defaultCurrencyValue = 10.00;
-
-        double USDtoUSD = MainWindow.convert("US Dollar", "Euro", Currency.init(), defaultCurrencyValue);
-        assertNotNull("should support USD to EUR", USDtoUSD);
-
+    public void shouldConvert0() {
+        Double inferiorAmount = 0.0d;
+        assertTrue(MainWindow.convert(currency1, currency2, currencies,
+                inferiorAmount) instanceof Double);
     }
 
     @Test
-    void shouldSupportSameCurrencyConversion() {
-        double USDtoUSD = MainWindow.convert("US Dollar", "US Dollar", Currency.init(), 10.00);
-        assertNotNull("should support USD to USD conversion", USDtoUSD);
-
+    public void shouldConvert100() {
+        Double middleAmount = 100.0d;
+        assertTrue(MainWindow.convert(currency1, currency2, currencies,
+                middleAmount) instanceof Double);
     }
+
+    @Test
+    public void shouldConvert10000() {
+        Double superiorAmount = 10000.0d;
+        assertTrue(MainWindow.convert(currency1, currency2, currencies,
+                superiorAmount) instanceof Double);
+    }
+
+    @Test
+    public void ShouldNotConvertSuperiorTo10001() {
+        Double superiorAmount = 10001.0d;
+        String expectedOutcome = "Should return an error if amount is superior to 10001";
+        assertThrows(exceptionClass,
+                () -> MainWindow.convert(currency1, currency2, currencies,
+                        superiorAmount),
+                expectedOutcome);
+    }
+
+    // * White box testing for currencyConverter.MainWindow.convert(String, String,
+    // Currency, Double)
+
+    // critere des arcs du graphe de flot de controle & coverage
+    public void testInvalidCurrency2Name() {
+        String falseCurrency2Name = "Doge";
+        String expectedOutcome = "Should return an error if currency 2 is invalid";
+        assertThrows(exceptionClass,
+                () -> MainWindow.convert(currency1,
+                        falseCurrency2Name, currencies,
+                        amount),
+                expectedOutcome);
+    }
+
+    @Test
+    public void testAllValidCurrencyName() {
+        assertTrue(MainWindow.convert(currency1, currency2, currencies, amount) instanceof Double);
+    }
+
+    @Test
+    public void testInvalidCurrency1Name() {
+        String falseCurrency1Name = "Doge";
+        String expectedOutcome = "Should return an error if currency 1 is invalid";
+        assertThrows(exceptionClass,
+                () -> MainWindow.convert(
+                        falseCurrency1Name,
+                        currency2, currencies,
+                        amount),
+                expectedOutcome);
+    }
+
+    @Test
+    // chemins inds, est-ce que currencies peut etre vide? si non, utilise chemin 2
+    public void testPath136() {
+        ArrayList<Currency> emptyCurrencies = new ArrayList<Currency>();
+        String expectedOutcome = "Should return an error if currencies Array is empty";
+        assertThrows(exceptionClass,
+                () -> MainWindow.convert(currency1, currency2, emptyCurrencies, amount),
+                expectedOutcome);
+    }
+
+    @Test
+    public void testPath1367910() {
+        String sameFirstCurrency = "US Dollar";
+        assertTrue(MainWindow.convert(sameFirstCurrency, sameFirstCurrency, currencies, amount) instanceof Double);
+    }
+
+    @Test
+    public void testPath1236781011() {
+        String falseCurrency = "Doge";
+        String expectedOutcome = "Should return an error if currency 1 is invalid";
+        assertThrows(exceptionClass,
+                () -> MainWindow.convert(falseCurrency, currency2, currencies, amount),
+                expectedOutcome);
+    }
+
+    /**
+     ** Coverage of conditions
+     * We cover each arc of the graph for the flow of control of P so we dont need
+     * to verify all the values for the complex conditions
+     * Also, note that its impossible here to have empty currncies (Chemins ind)
+     *
+     * * coverage of o-paths
+     * skip loop, 1 loop, 2 loop, n loop, n-1 loop, n+1 loop, m middle loop
+     */
+
+    @Test
+    public void test1Iteration() {
+        String tempCurrency = currencies.get(0).getName();
+        assertTrue(MainWindow.convert(tempCurrency, tempCurrency, currencies, amount) instanceof Double);
+    }
+
+    @Test
+    public void test2Iteration() {
+        String tempCurrency = currencies.get(1).getName();
+        assertTrue(MainWindow.convert(tempCurrency, tempCurrency, currencies, amount) instanceof Double);
+    }
+
+    @Test
+    public void testmIteration() {
+        // generate random m < n
+        String tempCurrency = currencies.get(3).getName();
+        assertTrue(MainWindow.convert(tempCurrency, tempCurrency, currencies, amount) instanceof Double);
+    }
+
+    @Test
+    public void testLastIteration() {
+        String tempCurrency = currencies.get(currencies.size() - 1).getName();
+        assertTrue(MainWindow.convert(tempCurrency, tempCurrency, currencies, amount) instanceof Double);
+    }
+
+    @Test
+    public void testSecondtoLastIteration() {
+        String tempCurrency = currencies.get(currencies.size() - 2).getName();
+        assertTrue(MainWindow.convert(tempCurrency, tempCurrency, currencies, amount) instanceof Double);
+    }
+
+    // ici on a boucle concatenees independantes, donc 2 fois test bouble simple
 
 }
